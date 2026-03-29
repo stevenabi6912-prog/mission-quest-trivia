@@ -87,7 +87,7 @@
   }
 
   /* ── Logo & Start ── */
-  .logo-container { text-align: center; animation: logoIn 1s ease-out; }
+  .logo-container { text-align: center; animation: logoIn 1s ease-out; position: relative; z-index: 2; }
   @keyframes logoIn {
     from { opacity: 0; transform: translateY(-40px) scale(0.8); }
   }
@@ -119,6 +119,7 @@
     top: 0; left: 0; right: 0; bottom: 0;
     pointer-events: none;
     overflow: hidden;
+    z-index: 0;
   }
   .home-float {
     position: absolute;
@@ -223,6 +224,8 @@
     gap: 14px;
     margin-top: 28px;
     animation: slideUp 0.8s ease-out 0.3s both;
+    position: relative;
+    z-index: 2;
   }
   @keyframes slideUp {
     from { opacity: 0; transform: translateY(30px); }
@@ -843,10 +846,10 @@
   <div class="logo-container">
     <div class="logo-icon-row">
       <span>&#127758;</span>
-      <span>&#9981;</span>
       <span>&#128214;</span>
-      <span>&#9971;</span>
       <span>&#10013;&#65039;</span>
+      <span>&#127757;</span>
+      <span>&#10024;</span>
     </div>
     <div class="game-title">Mission<br>Quest</div>
     <div class="game-subtitle">CORE Missions Trivia</div>
@@ -1597,7 +1600,7 @@ updateQuestionCountBadge();
 // ─── Home screen floating emojis ───
 (function initHomeFloats() {
   const container = document.getElementById('homeFloats');
-  const emojis = ['&#127758;','&#9981;','&#128214;','&#10024;','&#127775;','&#9971;','&#10013;&#65039;','&#128588;','&#127757;','&#128150;','&#9992;&#65039;','&#127759;'];
+  const emojis = ['&#127758;','&#128214;','&#10024;','&#127775;','&#10013;&#65039;','&#128588;','&#127757;','&#128150;','&#9992;&#65039;','&#127759;'];
   for (let i = 0; i < 14; i++) {
     const el = document.createElement('div');
     el.className = 'home-float';
