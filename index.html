@@ -113,14 +113,78 @@
     letter-spacing: 2px;
     text-transform: uppercase;
   }
-  .question-count-badge {
-    margin-top: 12px;
+  /* ── Home screen extras ── */
+  .home-floating-emojis {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .home-float {
+    position: absolute;
+    font-size: 36px;
+    opacity: 0;
+    animation: homeFloat linear infinite;
+  }
+  @keyframes homeFloat {
+    0% { opacity: 0; transform: translateY(110vh) rotate(0deg) scale(0.6); }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    100% { opacity: 0; transform: translateY(-10vh) rotate(360deg) scale(1); }
+  }
+  .home-tagline {
+    font-size: 16px;
+    opacity: 0.6;
+    margin-top: 14px;
+    font-weight: 600;
+    max-width: 340px;
+    line-height: 1.4;
+    animation: slideUp 1s ease-out 0.5s both;
+  }
+  .home-glow {
+    position: absolute;
+    width: 250px; height: 250px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245,166,35,0.15) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%);
+    animation: glowPulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes glowPulse {
+    0%, 100% { transform: translate(-50%, -60%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -60%) scale(1.3); opacity: 1; }
+  }
+  .logo-icon-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .logo-icon-row span {
+    font-size: 50px;
+    animation: iconBounce 2s ease-in-out infinite;
+  }
+  .logo-icon-row span:nth-child(1) { animation-delay: 0s; }
+  .logo-icon-row span:nth-child(2) { animation-delay: 0.2s; }
+  .logo-icon-row span:nth-child(3) { animation-delay: 0.4s; }
+  .logo-icon-row span:nth-child(4) { animation-delay: 0.6s; }
+  .logo-icon-row span:nth-child(5) { animation-delay: 0.8s; }
+  @keyframes iconBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .home-challenge {
     display: inline-block;
-    background: rgba(255,255,255,0.12);
-    padding: 6px 18px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 700;
+    background: linear-gradient(135deg, rgba(231,76,60,0.3), rgba(142,68,173,0.3));
+    border: 2px solid rgba(255,255,255,0.15);
+    padding: 8px 22px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 800;
+    margin-top: 16px;
+    animation: slideUp 1s ease-out 0.7s both;
+    letter-spacing: 0.5px;
   }
 
   /* ── Buttons ── */
@@ -774,11 +838,20 @@
 
 <!-- ═══ START SCREEN ═══ -->
 <div class="screen active" id="startScreen">
+  <div class="home-floating-emojis" id="homeFloats"></div>
+  <div class="home-glow"></div>
   <div class="logo-container">
-    <div class="logo-icon">&#127758;</div>
-    <div class="game-title">CORE Missions<br>Trivia</div>
-    <div class="game-subtitle">Centered On Remote Evangelism</div>
-    <div class="question-count-badge" id="questionCountBadge">100 Questions!</div>
+    <div class="logo-icon-row">
+      <span>&#127758;</span>
+      <span>&#9981;</span>
+      <span>&#128214;</span>
+      <span>&#9971;</span>
+      <span>&#10013;&#65039;</span>
+    </div>
+    <div class="game-title">Mission<br>Quest</div>
+    <div class="game-subtitle">CORE Missions Trivia</div>
+    <div class="home-tagline">How much do you know about missionaries and reaching the world for Christ?</div>
+    <div class="home-challenge">&#127942; Can you reach the Top Score?</div>
   </div>
   <div class="btn-group">
     <button class="btn btn-primary" onclick="showNameScreen()">Play Now!</button>
@@ -1011,10 +1084,7 @@ function saveQuestions(questions) {
   localStorage.setItem('coreTrivia_questions', JSON.stringify(questions));
   updateQuestionCountBadge();
 }
-function updateQuestionCountBadge() {
-  const q = getQuestions();
-  document.getElementById('questionCountBadge').textContent = `${q.length} Questions!`;
-}
+function updateQuestionCountBadge() { /* no-op, badge removed */ }
 
 // ─── Settings ───
 function getSettings() {
@@ -1191,7 +1261,7 @@ function handleTimeout() {
   streak = 0;
   updateStreakBadge();
   document.getElementById('funFact').classList.add('show');
-  setTimeout(() => { currentQuestion++; showQuestion(); }, 2500);
+  setTimeout(() => { currentQuestion++; showQuestion(); }, 4500);
 }
 
 function selectAnswer(idx, btn) {
@@ -1230,7 +1300,7 @@ function selectAnswer(idx, btn) {
 
   document.getElementById('quizScore').textContent = `${score} pts`;
   document.getElementById('funFact').classList.add('show');
-  setTimeout(() => { currentQuestion++; showQuestion(); }, 2500);
+  setTimeout(() => { currentQuestion++; showQuestion(); }, 4500);
 }
 
 function endGame() {
@@ -1515,6 +1585,22 @@ window.addEventListener('resize', () => {
 });
 
 updateQuestionCountBadge();
+
+// ─── Home screen floating emojis ───
+(function initHomeFloats() {
+  const container = document.getElementById('homeFloats');
+  const emojis = ['&#127758;','&#9981;','&#128214;','&#10024;','&#127775;','&#9971;','&#10013;&#65039;','&#128588;','&#127757;','&#128150;','&#9992;&#65039;','&#127759;'];
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement('div');
+    el.className = 'home-float';
+    el.innerHTML = emojis[i % emojis.length];
+    el.style.left = `${5 + Math.random() * 90}%`;
+    el.style.fontSize = `${24 + Math.random() * 28}px`;
+    el.style.animationDuration = `${8 + Math.random() * 10}s`;
+    el.style.animationDelay = `${Math.random() * 10}s`;
+    container.appendChild(el);
+  }
+})();
 </script>
 </body>
 </html>
