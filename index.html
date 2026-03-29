@@ -1113,6 +1113,7 @@ let gamesPlayed = parseInt(localStorage.getItem('coreTrivia_plays') || '0');
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  if (id !== 'quizScreen') document.getElementById('streakBadge').classList.remove('active');
 }
 function showNameScreen() {
   showScreen('nameScreen');
@@ -1305,6 +1306,7 @@ function selectAnswer(idx, btn) {
 
 function endGame() {
   clearInterval(timer);
+  hideStreakBadge();
   gamesPlayed++;
   localStorage.setItem('coreTrivia_plays', gamesPlayed);
   saveToLeaderboard(currentPlayer, score, correctCount, bestStreak);
@@ -1368,7 +1370,13 @@ function updateStreakBadge() {
     b.textContent = `${streak}x Streak!`;
     b.classList.add('active');
     reanimateEl(b, 'streakIn 0.4s ease-out');
-  } else b.classList.remove('active');
+  } else {
+    b.classList.remove('active');
+  }
+}
+function hideStreakBadge() {
+  streak = 0;
+  document.getElementById('streakBadge').classList.remove('active');
 }
 
 function fireConfetti() {
