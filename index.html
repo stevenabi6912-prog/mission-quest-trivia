@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>CORE Missions Trivia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --core-blue: #1a3a5c;
+    --core-gold: #f5a623;
+    --core-light: #e8f4fd;
+    --core-green: #2ecc71;
+    --core-red: #e74c3c;
+    --core-purple: #8e44ad;
+    --core-orange: #e67e22;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8a 50%, #1a3a5c 100%);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow: hidden;
+    color: #fff;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* ── Background decorations ── */
+  .bg-globe {
+    position: fixed;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.05);
+    top: -80px; right: -80px;
+    animation: spin 60s linear infinite;
+  }
+  .bg-globe::after {
+    content: '';
+    position: absolute;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 2px dashed rgba(255,255,255,0.03);
+    animation: spin 30s linear infinite reverse;
+  }
+  .bg-cross {
+    position: fixed;
+    bottom: -30px; left: 30px;
+    font-size: 200px;
+    opacity: 0.04;
+    animation: float 8s ease-in-out infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  /* ── Screens ── */
+  .screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    transition: opacity 0.5s, transform 0.5s;
+    opacity: 0;
+    transform: scale(0.95);
+    pointer-events: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .screen.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: all;
+  }
+
+  /* ── Logo & Start ── */
+  .logo-container { text-align: center; animation: logoIn 1s ease-out; }
+  @keyframes logoIn {
+    from { opacity: 0; transform: translateY(-40px) scale(0.8); }
+  }
+  .logo-icon { font-size: 80px; margin-bottom: 10px; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .game-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 52px;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+    background: linear-gradient(180deg, #fff 0%, #f5a623 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+  }
+  .game-subtitle {
+    font-size: 18px;
+    opacity: 0.7;
+    margin-top: 8px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .question-count-badge {
+    margin-top: 12px;
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-block;
+    padding: 18px 50px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: #fff;
+    position: relative;
+    -webkit-appearance: none;
+  }
+  .btn:active { transform: scale(0.95) translateY(3px); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--core-gold), #e6951a);
+    box-shadow: 0 6px 0 #c47d10, 0 8px 20px rgba(0,0,0,0.3);
+  }
+  .btn-primary:active {
+    box-shadow: 0 2px 0 #c47d10, 0 4px 10px rgba(0,0,0,0.3);
+  }
+  .btn-secondary {
+    background: linear-gradient(135deg, var(--core-purple), #7d3c98);
+    box-shadow: 0 6px 0 #6c2d87, 0 8px 20px rgba(0,0,0,0.3);
+  }
+  .btn-secondary:active {
+    box-shadow: 0 2px 0 #6c2d87;
+  }
+  .btn-small { padding: 12px 30px; font-size: 18px; border-radius: 12px; }
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 28px;
+    animation: slideUp 0.8s ease-out 0.3s both;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+  }
+
+  /* ── Name Entry ── */
+  .name-emoji { font-size: 60px; margin-bottom: 10px; }
+  .name-label {
+    font-family: 'Fredoka One', cursive;
+    font-size: 32px;
+    margin-bottom: 6px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  }
+  .name-hint { font-size: 16px; opacity: 0.65; margin-bottom: 16px; }
+  .name-input {
+    width: 350px;
+    max-width: 90vw;
+    padding: 16px 24px;
+    font-size: 28px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    border: 4px solid var(--core-gold);
+    border-radius: 16px;
+    text-align: center;
+    background: rgba(255,255,255,0.95);
+    color: var(--core-blue);
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .name-input::placeholder { color: #aaa; }
+  .name-input:focus { border-color: #fff; box-shadow: 0 0 20px rgba(245,166,35,0.5); }
+
+  /* ── Quiz ── */
+  .quiz-header {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .quiz-progress {
+    font-family: 'Fredoka One', cursive;
+    font-size: 20px;
+    opacity: 0.9;
+  }
+  .quiz-score {
+    font-family: 'Fredoka One', cursive;
+    font-size: 22px;
+    color: var(--core-gold);
+  }
+  .quiz-timer {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    border: 4px solid var(--core-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    position: relative;
+  }
+  .timer-ring {
+    position: absolute;
+    top: -4px; left: -4px;
+    width: 60px; height: 60px;
+  }
+  .timer-ring circle {
+    fill: none;
+    stroke: var(--core-gold);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: center;
+    transition: stroke-dashoffset 1s linear;
+  }
+  .timer-warning { border-color: var(--core-red); }
+  .timer-warning circle { stroke: var(--core-red); }
+
+  .progress-bar-container {
+    width: 100%;
+    max-width: 700px;
+    height: 10px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 5px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--core-gold), var(--core-green));
+    border-radius: 5px;
+    transition: width 0.5s ease;
+  }
+
+  .question-card {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 28px;
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+    animation: cardIn 0.5s ease-out;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateX(60px) rotateY(10deg); }
+  }
+
+  .question-category {
+    display: inline-block;
+    background: var(--core-gold);
+    color: var(--core-blue);
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .question-text {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 20px;
+  }
+
+  .answers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .answer-btn {
+    padding: 16px 12px;
+    font-size: 18px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    border: 3px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    -webkit-appearance: none;
+  }
+  .answer-btn:active { transform: scale(0.97); }
+  .answer-btn .answer-letter {
+    position: absolute;
+    top: 8px; left: 12px;
+    font-size: 13px;
+    font-weight: 800;
+    opacity: 0.4;
+  }
+  .answer-btn.correct {
+    background: var(--core-green);
+    border-color: var(--core-green);
+    animation: correctPop 0.5s ease;
+  }
+  @keyframes correctPop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+  .answer-btn.wrong {
+    background: var(--core-red);
+    border-color: var(--core-red);
+    animation: wrongShake 0.5s ease;
+  }
+  @keyframes wrongShake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+  }
+  .answer-btn.reveal-correct {
+    background: rgba(46,204,113,0.3);
+    border-color: var(--core-green);
+  }
+
+  .tap-hint {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 15px;
+    opacity: 0.5;
+    animation: fadeInOut 2s ease-in-out infinite;
+  }
+  @keyframes fadeInOut {
+    0%,100% { opacity: 0.25; }
+    50% { opacity: 0.6; }
+  }
+
+  .fun-fact {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: rgba(245,166,35,0.15);
+    border-left: 4px solid var(--core-gold);
+    border-radius: 0 12px 12px 0;
+    text-align: left;
+    font-size: 15px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.4s ease 0.3s;
+  }
+  .fun-fact.show { opacity: 1; transform: translateY(0); }
+  .fun-fact-label { font-weight: 800; color: var(--core-gold); margin-bottom: 4px; }
+
+  /* ── Streak ── */
+  .streak-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    pointer-events: none;
+  }
+  .streak-badge {
+    display: none;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    animation: streakIn 0.4s ease-out;
+    box-shadow: 0 4px 15px rgba(231,76,60,0.5);
+  }
+  .streak-badge.active { display: inline-block; }
+  @keyframes streakIn {
+    from { opacity: 0; transform: scale(0.5) translateY(-20px); }
+  }
+
+  /* ── Results ── */
+  .results-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 24px;
+    padding: 28px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    animation: cardIn 0.6s ease-out;
+  }
+  .results-emoji { font-size: 80px; animation: bounceIn 0.8s ease; }
+  @keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.3); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+  }
+  .results-title { font-family: 'Fredoka One', cursive; font-size: 34px; margin: 8px 0; }
+  .results-name { font-size: 18px; opacity: 0.7; margin-bottom: 4px; }
+  .results-score {
+    font-size: 56px;
+    font-family: 'Fredoka One', cursive;
+    color: var(--core-gold);
+    line-height: 1;
+  }
+  .results-detail { font-size: 18px; opacity: 0.7; margin: 6px 0 18px; }
+  .results-stats { display: flex; justify-content: center; gap: 28px; margin-bottom: 18px; }
+  .stat-box { text-align: center; }
+  .stat-value { font-family: 'Fredoka One', cursive; font-size: 26px; }
+  .stat-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; }
+
+  /* ── Leaderboard ── */
+  .leaderboard-container { width: 100%; max-width: 550px; }
+  .leaderboard-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 34px;
+    text-align: center;
+    margin-bottom: 18px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+  }
+  .leaderboard-list {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    max-height: 55vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .lb-entry {
+    display: flex;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    animation: slideIn 0.4s ease-out both;
+  }
+  .lb-entry:last-child { border-bottom: none; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+  }
+  .lb-rank { font-family: 'Fredoka One', cursive; font-size: 22px; width: 50px; text-align: center; }
+  .lb-rank-1 { color: #FFD700; }
+  .lb-rank-2 { color: #C0C0C0; }
+  .lb-rank-3 { color: #CD7F32; }
+  .lb-medal { font-size: 28px; }
+  .lb-name { flex: 1; font-weight: 700; font-size: 18px; margin-left: 12px; }
+  .lb-score { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--core-gold); }
+  .lb-entry.highlight { background: rgba(245,166,35,0.15); }
+  .lb-empty { text-align: center; padding: 40px; opacity: 0.5; font-size: 18px; }
+  .lb-actions { display: flex; gap: 12px; justify-content: center; margin-top: 18px; }
+  .lb-reset-btn {
+    background: none; border: none;
+    color: rgba(255,255,255,0.2);
+    font-size: 12px; cursor: pointer; padding: 8px;
+    margin-top: 10px;
+  }
+
+  /* ── Admin Panel ── */
+  .admin-gear {
+    position: fixed;
+    bottom: 10px; right: 10px;
+    width: 36px; height: 36px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.1);
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 500;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .admin-gear:hover { color: rgba(255,255,255,0.3); }
+
+  .admin-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    display: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px;
+  }
+  .admin-overlay.active { display: block; }
+  .admin-overlay * { user-select: text; -webkit-user-select: text; }
+
+  .admin-panel {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #1e2a3a;
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .admin-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 24px;
+    color: var(--core-gold);
+  }
+  .admin-close {
+    background: var(--core-red);
+    border: none;
+    color: #fff;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    font-family: 'Fredoka One', cursive;
+  }
+
+  .admin-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .admin-tab {
+    padding: 8px 20px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    background: none;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .admin-tab.active {
+    background: var(--core-gold);
+    border-color: var(--core-gold);
+    color: var(--core-blue);
+  }
+
+  .admin-section { display: none; }
+  .admin-section.active { display: block; }
+
+  .admin-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .admin-stat {
+    background: rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .admin-stat-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 32px;
+    color: var(--core-gold);
+  }
+  .admin-stat-label { font-size: 12px; opacity: 0.6; text-transform: uppercase; }
+
+  .admin-q-list {
+    max-height: 50vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-q-item {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .admin-q-num {
+    font-family: 'Fredoka One', cursive;
+    font-size: 14px;
+    color: var(--core-gold);
+    min-width: 30px;
+  }
+  .admin-q-text { flex: 1; font-size: 14px; line-height: 1.3; }
+  .admin-q-cat {
+    font-size: 11px;
+    background: rgba(255,255,255,0.1);
+    padding: 2px 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .admin-q-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .admin-q-btn {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .admin-q-btn.delete { background: rgba(231,76,60,0.3); }
+  .admin-q-btn:hover { opacity: 0.8; }
+
+  /* Admin form */
+  .admin-form { margin-top: 16px; }
+  .admin-form-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--core-gold);
+  }
+  .form-row {
+    margin-bottom: 12px;
+  }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    opacity: 0.7;
+  }
+  .form-input, .form-textarea, .form-select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 15px;
+    font-family: 'Nunito', sans-serif;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    outline: none;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus {
+    border-color: var(--core-gold);
+  }
+  .form-textarea { min-height: 60px; resize: vertical; }
+  .form-select option { background: #1e2a3a; color: #fff; }
+  .form-hint { font-size: 12px; opacity: 0.4; margin-top: 2px; }
+
+  .admin-form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .admin-btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .admin-btn-save { background: var(--core-green); color: #fff; }
+  .admin-btn-cancel { background: rgba(255,255,255,0.1); color: #fff; }
+  .admin-btn-clear { background: var(--core-red); color: #fff; }
+
+  .admin-message {
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    display: none;
+  }
+  .admin-message.success { display: block; background: rgba(46,204,113,0.2); color: var(--core-green); }
+  .admin-message.error { display: block; background: rgba(231,76,60,0.2); color: var(--core-red); }
+
+  /* ── Confetti ── */
+  #confettiCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  /* ── Point popup ── */
+  .point-popup {
+    position: fixed;
+    font-family: 'Fredoka One', cursive;
+    font-size: 32px;
+    pointer-events: none;
+    z-index: 150;
+    animation: pointsUp 1s ease-out forwards;
+  }
+  @keyframes pointsUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(1.3); }
+  }
+
+  /* ── Countdown ── */
+  .countdown-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(26,58,92,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .countdown-overlay.active { opacity: 1; pointer-events: all; }
+  .countdown-number {
+    font-family: 'Fredoka One', cursive;
+    font-size: 120px;
+    color: var(--core-gold);
+    animation: countPop 0.6s ease-out;
+  }
+  @keyframes countPop {
+    0% { transform: scale(2); opacity: 0; }
+    60% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ── Starburst ── */
+  .starburst { position: fixed; pointer-events: none; z-index: 100; }
+  .star {
+    position: absolute;
+    font-size: 24px;
+    animation: starFly 0.8s ease-out forwards;
+  }
+  @keyframes starFly {
+    0% { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3) rotate(360deg); }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .game-title { font-size: 38px; }
+    .question-text { font-size: 20px; }
+    .answers-grid { grid-template-columns: 1fr; }
+    .answer-btn { min-height: 58px; font-size: 17px; }
+    .btn { padding: 14px 36px; font-size: 20px; }
+    .results-score { font-size: 48px; }
+    .admin-stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-globe"></div>
+<div class="bg-cross">&#10013;</div>
+<canvas id="confettiCanvas"></canvas>
+
+<div class="streak-container">
+  <div class="streak-badge" id="streakBadge"></div>
+</div>
+
+<!-- ADMIN GEAR (barely visible) -->
+<button class="admin-gear" onclick="openAdmin()" title="Admin">&#9881;</button>
+
+<!-- ═══ START SCREEN ═══ -->
+<div class="screen active" id="startScreen">
+  <div class="logo-container">
+    <div class="logo-icon">&#127758;</div>
+    <div class="game-title">CORE Missions<br>Trivia</div>
+    <div class="game-subtitle">Centered On Remote Evangelism</div>
+    <div class="question-count-badge" id="questionCountBadge">100 Questions!</div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="showNameScreen()">Play Now!</button>
+    <button class="btn btn-secondary" onclick="showLeaderboard()">Top Scores</button>
+  </div>
+</div>
+
+<!-- ═══ NAME SCREEN ═══ -->
+<div class="screen" id="nameScreen">
+  <div style="text-align:center">
+    <div class="name-emoji">&#128075;</div>
+    <div class="name-label">What's Your Name?</div>
+    <div class="name-hint">Type your first name below!</div>
+    <input type="text" class="name-input" id="playerName" placeholder="Your name..." maxlength="20" autocomplete="off" autocorrect="off" autocapitalize="words">
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="startGame()">Start the Quiz!</button>
+      <button class="btn btn-secondary btn-small" onclick="showScreen('startScreen')">Go Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ QUIZ SCREEN ═══ -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-header">
+    <div class="quiz-progress" id="quizProgress">1 / 10</div>
+    <div class="quiz-timer" id="quizTimer">
+      <svg class="timer-ring" viewBox="0 0 60 60">
+        <circle id="timerCircle" cx="30" cy="30" r="26" stroke-dasharray="163.36" stroke-dashoffset="0"></circle>
+      </svg>
+      <span id="timerText">15</span>
+    </div>
+    <div class="quiz-score" id="quizScore">0 pts</div>
+  </div>
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+  <div class="question-card" id="questionCard">
+    <div class="question-category" id="questionCategory"></div>
+    <div class="question-text" id="questionText"></div>
+    <div class="answers-grid" id="answersGrid"></div>
+    <div class="tap-hint" id="tapHint">&#9757; Tap the correct answer!</div>
+    <div class="fun-fact" id="funFact">
+      <div class="fun-fact-label">Did You Know?</div>
+      <div id="funFactText"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RESULTS SCREEN ═══ -->
+<div class="screen" id="resultsScreen">
+  <div class="results-card">
+    <div class="results-emoji" id="resultsEmoji"></div>
+    <div class="results-title" id="resultsTitle"></div>
+    <div class="results-name" id="resultsName"></div>
+    <div class="results-score" id="resultsScore">0</div>
+    <div class="results-detail">points</div>
+    <div class="results-stats">
+      <div class="stat-box">
+        <div class="stat-value" id="statCorrect" style="color:var(--core-green)">0</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="statStreak" style="color:var(--core-orange)">0</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="statTime" style="color:var(--core-purple)">0s</div>
+        <div class="stat-label">Avg Speed</div>
+      </div>
+    </div>
+    <div class="btn-group" style="margin-top:14px">
+      <button class="btn btn-primary" onclick="showNameScreen()">Play Again</button>
+      <button class="btn btn-secondary btn-small" onclick="showLeaderboard()">Top Scores</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LEADERBOARD SCREEN ═══ -->
+<div class="screen" id="leaderboardScreen">
+  <div class="leaderboard-container">
+    <div class="leaderboard-title">&#127942; Top Scores</div>
+    <div class="leaderboard-list" id="leaderboardList"></div>
+    <div class="lb-actions">
+      <button class="btn btn-primary btn-small" onclick="showNameScreen()">Play</button>
+      <button class="btn btn-secondary btn-small" onclick="showScreen('startScreen')">Home</button>
+    </div>
+    <div style="text-align:center">
+      <button class="lb-reset-btn" onclick="clearLeaderboard()">Reset Scores</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ COUNTDOWN ═══ -->
+<div class="countdown-overlay" id="countdownOverlay">
+  <div class="countdown-number" id="countdownNumber">3</div>
+</div>
+
+<!-- ═══ ADMIN PANEL ═══ -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <div class="admin-title">&#9881; Admin Panel</div>
+      <button class="admin-close" onclick="closeAdmin()">&#10005;</button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('questions')">Questions</button>
+      <button class="admin-tab" onclick="switchAdminTab('add')">Add New</button>
+      <button class="admin-tab" onclick="switchAdminTab('settings')">Settings</button>
+    </div>
+
+    <div id="adminMessage" class="admin-message"></div>
+
+    <!-- Questions Tab -->
+    <div class="admin-section active" id="adminQuestions">
+      <div class="admin-stats">
+        <div class="admin-stat">
+          <div class="admin-stat-value" id="adminTotalQ">0</div>
+          <div class="admin-stat-label">Total Questions</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat-value" id="adminCategories">0</div>
+          <div class="admin-stat-label">Categories</div>
+        </div>
+        <div class="admin-stat">
+          <div class="admin-stat-value" id="adminPlays">0</div>
+          <div class="admin-stat-label">Games Played</div>
+        </div>
+      </div>
+      <div class="admin-q-list" id="adminQList"></div>
+    </div>
+
+    <!-- Add New Tab -->
+    <div class="admin-section" id="adminAdd">
+      <div class="admin-form">
+        <div class="admin-form-title" id="formTitle">Add a New Question</div>
+        <input type="hidden" id="editIndex" value="-1">
+        <div class="form-row">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="formCategory">
+            <option>CORE Missions</option>
+            <option>World Missions</option>
+            <option>Bible & Missions</option>
+            <option>Fun Facts</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Question</label>
+          <textarea class="form-textarea" id="formQuestion" placeholder="Type your question here..."></textarea>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Correct Answer</label>
+          <input class="form-input" id="formCorrect" placeholder="The right answer">
+          <div class="form-hint">This is the answer that will be marked as correct</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Wrong Answer 1</label>
+          <input class="form-input" id="formWrong1" placeholder="First wrong choice">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Wrong Answer 2</label>
+          <input class="form-input" id="formWrong2" placeholder="Second wrong choice">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Wrong Answer 3</label>
+          <input class="form-input" id="formWrong3" placeholder="Third wrong choice">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Fun Fact (shown after answering)</label>
+          <textarea class="form-textarea" id="formFact" placeholder="An interesting fact kids will enjoy!"></textarea>
+        </div>
+        <div class="admin-form-actions">
+          <button class="admin-btn admin-btn-save" onclick="saveQuestion()">Save Question</button>
+          <button class="admin-btn admin-btn-cancel" onclick="clearForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="admin-section" id="adminSettings">
+      <div class="admin-form">
+        <div class="admin-form-title">Game Settings</div>
+        <div class="form-row">
+          <label class="form-label">Questions Per Game</label>
+          <select class="form-select" id="settingQCount">
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Seconds Per Question</label>
+          <select class="form-select" id="settingTimer">
+            <option value="10">10 seconds</option>
+            <option value="15" selected>15 seconds</option>
+            <option value="20">20 seconds</option>
+            <option value="30">30 seconds</option>
+          </select>
+        </div>
+        <div class="admin-form-actions">
+          <button class="admin-btn admin-btn-save" onclick="saveSettings()">Save Settings</button>
+        </div>
+        <hr style="border-color:rgba(255,255,255,0.1); margin: 20px 0">
+        <div class="admin-form-title" style="color:var(--core-red)">Danger Zone</div>
+        <div class="admin-form-actions">
+          <button class="admin-btn admin-btn-clear" onclick="clearLeaderboard(); showAdminMsg('Leaderboard cleared!','success')">Clear Leaderboard</button>
+          <button class="admin-btn admin-btn-clear" onclick="resetQuestions()">Reset to Default Questions</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+// ═══════════════════════════════════════
+// CORE Missions Trivia — Game Engine
+// ═══════════════════════════════════════
+
+// ─── Question Management ───
+function getQuestions() {
+  const custom = localStorage.getItem('coreTrivia_questions');
+  if (custom) {
+    try { return JSON.parse(custom); } catch(e) {}
+  }
+  return [...QUESTIONS];
+}
+function saveQuestions(questions) {
+  localStorage.setItem('coreTrivia_questions', JSON.stringify(questions));
+  updateQuestionCountBadge();
+}
+function updateQuestionCountBadge() {
+  const q = getQuestions();
+  document.getElementById('questionCountBadge').textContent = `${q.length} Questions!`;
+}
+
+// ─── Settings ───
+function getSettings() {
+  try {
+    return JSON.parse(localStorage.getItem('coreTrivia_settings') || '{}');
+  } catch { return {}; }
+}
+function getQuestionsPerGame() { return getSettings().questionsPerGame || 10; }
+function getTimerSeconds() { return getSettings().timerSeconds || 15; }
+
+// ─── Game State ───
+let currentPlayer = '';
+let currentQuestion = 0;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let totalTime = 0;
+let answeredCount = 0;
+let correctCount = 0;
+let timer = null;
+let timeLeft = 15;
+let gameQuestions = [];
+let gamesPlayed = parseInt(localStorage.getItem('coreTrivia_plays') || '0');
+
+// ─── Screens ───
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showNameScreen() {
+  showScreen('nameScreen');
+  setTimeout(() => document.getElementById('playerName').focus(), 400);
+}
+
+// ─── Leaderboard ───
+function getLeaderboard() {
+  try { return JSON.parse(localStorage.getItem('coreTrivia_lb') || '[]'); }
+  catch { return []; }
+}
+function saveToLeaderboard(name, pts, correct, streak) {
+  const lb = getLeaderboard();
+  lb.push({ name, score: pts, correct, streak, date: Date.now() });
+  lb.sort((a, b) => b.score - a.score);
+  if (lb.length > 50) lb.length = 50;
+  localStorage.setItem('coreTrivia_lb', JSON.stringify(lb));
+}
+function showLeaderboard(highlightName, highlightScore) {
+  const lb = getLeaderboard();
+  const list = document.getElementById('leaderboardList');
+  if (lb.length === 0) {
+    list.innerHTML = '<div class="lb-empty">No scores yet!<br>Be the first to play!</div>';
+  } else {
+    let highlighted = false;
+    list.innerHTML = lb.slice(0, 25).map((e, i) => {
+      const medal = i === 0 ? '<span class="lb-medal">&#129351;</span>'
+        : i === 1 ? '<span class="lb-medal">&#129352;</span>'
+        : i === 2 ? '<span class="lb-medal">&#129353;</span>'
+        : `<span>${i + 1}</span>`;
+      let hl = '';
+      if (!highlighted && highlightName && e.name === highlightName && e.score === highlightScore) {
+        hl = ' highlight';
+        highlighted = true;
+      }
+      return `<div class="lb-entry${hl}" style="animation-delay:${i*0.04}s">
+        <div class="lb-rank">${medal}</div>
+        <div class="lb-name">${esc(e.name)}</div>
+        <div class="lb-score">${e.score}</div>
+      </div>`;
+    }).join('');
+  }
+  showScreen('leaderboardScreen');
+}
+function clearLeaderboard() {
+  if (confirm('Clear all scores? This cannot be undone.')) {
+    localStorage.removeItem('coreTrivia_lb');
+    showLeaderboard();
+  }
+}
+
+// ─── Game ───
+function startGame() {
+  const input = document.getElementById('playerName');
+  currentPlayer = input.value.trim() || 'Player';
+  input.value = '';
+  score = 0; streak = 0; bestStreak = 0;
+  totalTime = 0; answeredCount = 0; correctCount = 0; currentQuestion = 0;
+
+  const TOTAL = getQuestionsPerGame();
+  const allQ = getQuestions();
+  gameQuestions = shuffle([...allQ]).slice(0, TOTAL).map(q => {
+    const idx = [0,1,2,3];
+    const sh = shuffle(idx);
+    return { ...q, answers: sh.map(i => q.answers[i]), correct: sh.indexOf(0) };
+  });
+
+  showCountdown(() => { showScreen('quizScreen'); showQuestion(); });
+}
+
+function showCountdown(cb) {
+  const overlay = document.getElementById('countdownOverlay');
+  const num = document.getElementById('countdownNumber');
+  overlay.classList.add('active');
+  let c = 3;
+  num.textContent = c;
+  reanimateEl(num, 'countPop 0.6s ease-out');
+  const iv = setInterval(() => {
+    c--;
+    if (c > 0) { num.textContent = c; reanimateEl(num, 'countPop 0.6s ease-out'); }
+    else {
+      num.textContent = 'GO!';
+      reanimateEl(num, 'countPop 0.6s ease-out');
+      setTimeout(() => { overlay.classList.remove('active'); cb(); }, 500);
+      clearInterval(iv);
+    }
+  }, 700);
+}
+
+function showQuestion() {
+  const TOTAL = getQuestionsPerGame();
+  if (currentQuestion >= gameQuestions.length) { endGame(); return; }
+
+  const q = gameQuestions[currentQuestion];
+  document.getElementById('quizProgress').textContent = `${currentQuestion + 1} / ${gameQuestions.length}`;
+  document.getElementById('quizScore').textContent = `${score} pts`;
+  document.getElementById('progressBar').style.width = `${(currentQuestion / gameQuestions.length) * 100}%`;
+  document.getElementById('questionCategory').textContent = q.category;
+  document.getElementById('questionText').textContent = q.question;
+  document.getElementById('tapHint').style.display = 'block';
+  document.getElementById('funFact').classList.remove('show');
+  document.getElementById('funFactText').textContent = q.fact;
+
+  const card = document.getElementById('questionCard');
+  reanimateEl(card, 'cardIn 0.5s ease-out');
+
+  const letters = ['A', 'B', 'C', 'D'];
+  document.getElementById('answersGrid').innerHTML = q.answers.map((a, i) =>
+    `<button class="answer-btn" onclick="selectAnswer(${i}, this)" style="animation:slideUp 0.4s ease-out ${0.1+i*0.08}s both">
+      <span class="answer-letter">${letters[i]}</span>${esc(a)}
+    </button>`
+  ).join('');
+
+  startTimer();
+}
+
+function startTimer() {
+  const TIME = getTimerSeconds();
+  timeLeft = TIME;
+  const txt = document.getElementById('timerText');
+  const el = document.getElementById('quizTimer');
+  const circle = document.getElementById('timerCircle');
+  const circ = 2 * Math.PI * 26;
+
+  txt.textContent = timeLeft;
+  circle.style.strokeDashoffset = 0;
+  el.classList.remove('timer-warning');
+
+  clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
+    txt.textContent = timeLeft;
+    circle.style.strokeDashoffset = (1 - timeLeft / TIME) * circ;
+    if (timeLeft <= 5) el.classList.add('timer-warning');
+    if (timeLeft <= 0) { clearInterval(timer); handleTimeout(); }
+  }, 1000);
+}
+
+function handleTimeout() {
+  document.getElementById('tapHint').style.display = 'none';
+  const q = gameQuestions[currentQuestion];
+  document.querySelectorAll('.answer-btn').forEach((b, i) => {
+    b.onclick = null;
+    if (i === q.correct) b.classList.add('reveal-correct');
+  });
+  streak = 0;
+  updateStreakBadge();
+  document.getElementById('funFact').classList.add('show');
+  setTimeout(() => { currentQuestion++; showQuestion(); }, 2500);
+}
+
+function selectAnswer(idx, btn) {
+  clearInterval(timer);
+  document.getElementById('tapHint').style.display = 'none';
+  const q = gameQuestions[currentQuestion];
+  const TIME = getTimerSeconds();
+  const used = TIME - timeLeft;
+  totalTime += used;
+  answeredCount++;
+
+  document.querySelectorAll('.answer-btn').forEach(b => b.onclick = null);
+
+  if (idx === q.correct) {
+    btn.classList.add('correct');
+    correctCount++;
+    const bonus = Math.max(0, Math.floor((timeLeft / TIME) * 50));
+    const pts = 100 + bonus;
+    score += pts;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    showPointPopup(btn, `+${pts}`);
+    createStarburst(btn);
+    updateStreakBadge();
+    if (streak > 0 && streak % 3 === 0) {
+      const sb = streak * 10;
+      score += sb;
+      setTimeout(() => showPointPopup(btn, `STREAK +${sb}`, '#e74c3c'), 300);
+    }
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.answer-btn')[q.correct].classList.add('reveal-correct');
+    streak = 0;
+    updateStreakBadge();
+  }
+
+  document.getElementById('quizScore').textContent = `${score} pts`;
+  document.getElementById('funFact').classList.add('show');
+  setTimeout(() => { currentQuestion++; showQuestion(); }, 2500);
+}
+
+function endGame() {
+  clearInterval(timer);
+  gamesPlayed++;
+  localStorage.setItem('coreTrivia_plays', gamesPlayed);
+  saveToLeaderboard(currentPlayer, score, correctCount, bestStreak);
+
+  const avg = answeredCount > 0 ? (totalTime / answeredCount).toFixed(1) : 0;
+  let emoji, title;
+  if (score >= 1200)     { emoji = '&#127775;'; title = 'Mission Champion!'; }
+  else if (score >= 800) { emoji = '&#127942;'; title = 'Amazing Work!'; }
+  else if (score >= 500) { emoji = '&#128170;'; title = 'Great Job!'; }
+  else if (score >= 200) { emoji = '&#128522;'; title = 'Good Effort!'; }
+  else                   { emoji = '&#128588;'; title = 'Keep Learning!'; }
+
+  document.getElementById('resultsEmoji').innerHTML = emoji;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsName').textContent = currentPlayer;
+  document.getElementById('resultsScore').textContent = score;
+  document.getElementById('statCorrect').textContent = `${correctCount}/${gameQuestions.length}`;
+  document.getElementById('statStreak').textContent = bestStreak;
+  document.getElementById('statTime').textContent = `${avg}s`;
+
+  showScreen('resultsScreen');
+  if (score >= 500) fireConfetti();
+}
+
+// ─── Visual Effects ───
+function showPointPopup(el, text, color = '#2ecc71') {
+  const r = el.getBoundingClientRect();
+  const p = document.createElement('div');
+  p.className = 'point-popup';
+  p.textContent = text;
+  p.style.color = color;
+  p.style.left = `${r.left + r.width/2 - 40}px`;
+  p.style.top = `${r.top - 10}px`;
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 1000);
+}
+
+function createStarburst(el) {
+  const r = el.getBoundingClientRect();
+  const c = document.createElement('div');
+  c.className = 'starburst';
+  c.style.left = `${r.left + r.width/2}px`;
+  c.style.top = `${r.top + r.height/2}px`;
+  const em = ['&#11088;','&#10024;','&#127775;','&#128171;'];
+  for (let i = 0; i < 8; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.innerHTML = em[i % em.length];
+    const a = (i/8) * Math.PI * 2, d = 60 + Math.random()*40;
+    s.style.setProperty('--tx', `${Math.cos(a)*d}px`);
+    s.style.setProperty('--ty', `${Math.sin(a)*d}px`);
+    c.appendChild(s);
+  }
+  document.body.appendChild(c);
+  setTimeout(() => c.remove(), 1000);
+}
+
+function updateStreakBadge() {
+  const b = document.getElementById('streakBadge');
+  if (streak >= 2) {
+    b.textContent = `${streak}x Streak!`;
+    b.classList.add('active');
+    reanimateEl(b, 'streakIn 0.4s ease-out');
+  } else b.classList.remove('active');
+}
+
+function fireConfetti() {
+  const cv = document.getElementById('confettiCanvas');
+  const ctx = cv.getContext('2d');
+  cv.width = window.innerWidth; cv.height = window.innerHeight;
+  const pcs = [], cols = ['#f5a623','#2ecc71','#e74c3c','#8e44ad','#3498db','#fff','#1abc9c'];
+  for (let i = 0; i < 150; i++) {
+    pcs.push({
+      x: Math.random()*cv.width, y: -20 - Math.random()*200,
+      w: 8+Math.random()*6, h: 12+Math.random()*8,
+      color: cols[Math.floor(Math.random()*cols.length)],
+      vx: (Math.random()-0.5)*4, vy: 2+Math.random()*4,
+      rot: Math.random()*360, rs: (Math.random()-0.5)*10, op: 1
+    });
+  }
+  let fr = 0;
+  (function draw() {
+    ctx.clearRect(0,0,cv.width,cv.height);
+    let alive = false;
+    pcs.forEach(p => {
+      if (p.op <= 0) return;
+      alive = true;
+      ctx.save(); ctx.globalAlpha = p.op;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.rot += p.rs;
+      if (p.y > cv.height+20) p.op -= 0.02;
+    });
+    fr++;
+    if (alive && fr < 300) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+// ─── Admin Panel ───
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.add('active');
+  refreshAdminQuestions();
+  const s = getSettings();
+  document.getElementById('settingQCount').value = s.questionsPerGame || 10;
+  document.getElementById('settingTimer').value = s.timerSeconds || 15;
+  document.getElementById('adminPlays').textContent = gamesPlayed;
+}
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('active');
+}
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tab === 'questions' ? 'adminQuestions' : tab === 'add' ? 'adminAdd' : 'adminSettings').classList.add('active');
+  if (tab === 'questions') refreshAdminQuestions();
+  if (tab === 'add') clearForm();
+}
+
+function refreshAdminQuestions() {
+  const q = getQuestions();
+  const cats = [...new Set(q.map(x => x.category))];
+  document.getElementById('adminTotalQ').textContent = q.length;
+  document.getElementById('adminCategories').textContent = cats.length;
+
+  document.getElementById('adminQList').innerHTML = q.map((item, i) =>
+    `<div class="admin-q-item">
+      <div class="admin-q-num">#${i+1}</div>
+      <div class="admin-q-text">${esc(item.question)}</div>
+      <div class="admin-q-cat">${esc(item.category)}</div>
+      <div class="admin-q-actions">
+        <button class="admin-q-btn" onclick="editQuestion(${i})" title="Edit">&#9998;</button>
+        <button class="admin-q-btn delete" onclick="deleteQuestion(${i})" title="Delete">&#10005;</button>
+      </div>
+    </div>`
+  ).join('');
+}
+
+function editQuestion(idx) {
+  const q = getQuestions()[idx];
+  document.getElementById('editIndex').value = idx;
+  document.getElementById('formTitle').textContent = `Edit Question #${idx + 1}`;
+  document.getElementById('formCategory').value = q.category;
+  document.getElementById('formQuestion').value = q.question;
+  document.getElementById('formCorrect').value = q.answers[0];
+  document.getElementById('formWrong1').value = q.answers[1];
+  document.getElementById('formWrong2').value = q.answers[2];
+  document.getElementById('formWrong3').value = q.answers[3];
+  document.getElementById('formFact').value = q.fact;
+  switchAdminTab('add');
+  // fix the active tab highlight
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab')[1].classList.add('active');
+}
+
+function deleteQuestion(idx) {
+  if (!confirm(`Delete question #${idx + 1}?`)) return;
+  const q = getQuestions();
+  q.splice(idx, 1);
+  saveQuestions(q);
+  refreshAdminQuestions();
+  showAdminMsg('Question deleted.', 'success');
+}
+
+function saveQuestion() {
+  const cat = document.getElementById('formCategory').value;
+  const question = document.getElementById('formQuestion').value.trim();
+  const correct = document.getElementById('formCorrect').value.trim();
+  const w1 = document.getElementById('formWrong1').value.trim();
+  const w2 = document.getElementById('formWrong2').value.trim();
+  const w3 = document.getElementById('formWrong3').value.trim();
+  const fact = document.getElementById('formFact').value.trim();
+
+  if (!question || !correct || !w1 || !w2 || !w3) {
+    showAdminMsg('Please fill in the question and all 4 answers.', 'error');
+    return;
+  }
+
+  const q = getQuestions();
+  const entry = {
+    category: cat,
+    question,
+    answers: [correct, w1, w2, w3],
+    fact: fact || 'Great question!'
+  };
+
+  const idx = parseInt(document.getElementById('editIndex').value);
+  if (idx >= 0) {
+    q[idx] = entry;
+    showAdminMsg(`Question #${idx + 1} updated!`, 'success');
+  } else {
+    q.push(entry);
+    showAdminMsg(`Question #${q.length} added!`, 'success');
+  }
+
+  saveQuestions(q);
+  clearForm();
+  refreshAdminQuestions();
+}
+
+function clearForm() {
+  document.getElementById('editIndex').value = -1;
+  document.getElementById('formTitle').textContent = 'Add a New Question';
+  document.getElementById('formQuestion').value = '';
+  document.getElementById('formCorrect').value = '';
+  document.getElementById('formWrong1').value = '';
+  document.getElementById('formWrong2').value = '';
+  document.getElementById('formWrong3').value = '';
+  document.getElementById('formFact').value = '';
+}
+
+function saveSettings() {
+  const settings = {
+    questionsPerGame: parseInt(document.getElementById('settingQCount').value),
+    timerSeconds: parseInt(document.getElementById('settingTimer').value)
+  };
+  localStorage.setItem('coreTrivia_settings', JSON.stringify(settings));
+  showAdminMsg('Settings saved!', 'success');
+}
+
+function resetQuestions() {
+  if (!confirm('Reset all questions to the original defaults? Any questions you added will be lost.')) return;
+  localStorage.removeItem('coreTrivia_questions');
+  refreshAdminQuestions();
+  updateQuestionCountBadge();
+  showAdminMsg('Questions reset to defaults.', 'success');
+}
+
+function showAdminMsg(text, type) {
+  const el = document.getElementById('adminMessage');
+  el.textContent = text;
+  el.className = `admin-message ${type}`;
+  setTimeout(() => { el.className = 'admin-message'; }, 3000);
+}
+
+// ─── Utilities ───
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+function reanimateEl(el, anim) {
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = anim;
+}
+
+// ─── Init ───
+document.getElementById('playerName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') startGame();
+});
+
+// Prevent zoom on double-tap (iPad)
+document.addEventListener('touchstart', e => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+let lastTouchEnd = 0;
+document.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - lastTouchEnd <= 300) e.preventDefault();
+  lastTouchEnd = now;
+}, false);
+
+window.addEventListener('resize', () => {
+  const c = document.getElementById('confettiCanvas');
+  c.width = window.innerWidth; c.height = window.innerHeight;
+});
+
+updateQuestionCountBadge();
+</script>
+</body>
+</html>
