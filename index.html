@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>CORE Missions Trivia</title>
+<meta name="theme-color" content="#1a3a5c">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Mission Quest Trivia</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
 
@@ -1596,6 +1599,13 @@ window.addEventListener('resize', () => {
 });
 
 updateQuestionCountBadge();
+
+// ─── Register Service Worker for offline use ───
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(() => {
+    console.log('Service Worker registered — app works offline!');
+  }).catch(err => console.log('SW registration failed:', err));
+}
 
 // ─── Home screen floating emojis ───
 (function initHomeFloats() {
